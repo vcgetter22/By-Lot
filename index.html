@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>By Lot.</title>
+<meta name="description" content="A web-based participatory artwork on democratic reflection. Nine questions, anonymous, no accounts." />
+<meta name="theme-color" content="#0D0B0A" />
+<meta name="referrer" content="no-referrer" />
+
+<link rel="preload" as="font" type="font/woff2" href="/fonts/eb-garamond-400.woff2" crossorigin />
+<link rel="preload" as="font" type="font/woff2" href="/fonts/eb-garamond-400-italic.woff2" crossorigin />
+<link rel="preload" as="font" type="font/woff2" href="/fonts/inter-400.woff2" crossorigin />
+
+<style>
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-400-italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-500-italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/inter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-500.woff2') format('woff2');
+}
+
+:root{
+  --bg: #0A0A0A;
+  --bg-warm: #0D0B0A;
+  --cream: #F4EFE3;
+  --cream-90: rgba(244, 239, 227, 0.9);
+  --cream-70: rgba(244, 239, 227, 0.7);
+  --cream-55: rgba(244, 239, 227, 0.55);
+  --cream-40: rgba(244, 239, 227, 0.4);
+  --cream-25: rgba(244, 239, 227, 0.25);
+  --cream-15: rgba(244, 239, 227, 0.15);
+  --cream-10: rgba(244, 239, 227, 0.1);
+  --burgundy: #8B2D2D;
+  --serif: 'EB Garamond', 'Source Serif 4', Georgia, serif;
+  --sans: 'Inter', -apple-system, system-ui, sans-serif;
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg-warm);color:var(--cream);font-family:var(--serif);font-weight:400;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+body{overflow-x:hidden;line-height:1.6;}
+::selection{background:rgba(139,45,45,0.55);color:var(--cream);}
+
+a{color:inherit;text-decoration:none;}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
+
+/* Skip link for keyboard users */
+.skip-link{
+  position:absolute;left:-9999px;top:8px;z-index:100;
+  background:var(--cream);color:var(--bg);padding:8px 14px;
+  font-family:var(--sans);font-size:13px;letter-spacing:0.04em;
+}
+.skip-link:focus{left:8px;}
+
+/* Field canvas — fixed behind everything */
+#field-canvas{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+}
+#field-canvas canvas{display:block;width:100%;height:100%;}
+
+/* Static fallback before WebGL loads — barely visible noise */
+.field-fallback{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(244,239,227,0.04), transparent 60%),
+    radial-gradient(1px 1px at 23% 17%, var(--cream-25), transparent),
+    radial-gradient(1px 1px at 67% 33%, var(--cream-25), transparent),
+    radial-gradient(1px 1px at 41% 71%, var(--cream-25), transparent),
+    radial-gradient(1px 1px at 78% 62%, var(--cream-25), transparent),
+    radial-gradient(1px 1px at 12% 88%, var(--cream-25), transparent);
+}
+
+/* Top-left logotype, very small, persistent */
+.brand{
+  position:fixed;top:24px;left:32px;z-index:50;
+  font-family:var(--serif);font-size:15px;letter-spacing:0.01em;
+  color:var(--cream-70);
+}
+.brand a:hover{color:var(--cream);}
+
+/* Top-right tiny meta link */
+.meta-link{
+  position:fixed;top:24px;right:32px;z-index:50;
+  font-family:var(--sans);font-size:10px;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--cream-55);
+}
+.meta-link:hover{color:var(--cream);}
+
+/* Right-edge chapter ticks */
+.ticks{
+  position:fixed;right:24px;top:50%;transform:translateY(-50%);
+  z-index:40;display:flex;flex-direction:column;gap:14px;
+  opacity:0;transition:opacity 800ms var(--ease);
+}
+.ticks.visible{opacity:1;}
+.ticks button{
+  width:14px;height:1px;background:var(--cream-25);
+  transition:background 300ms var(--ease), width 300ms var(--ease);
+  display:block;
+}
+.ticks button:hover{background:var(--cream-70);width:22px;}
+.ticks button.active{background:var(--cream);width:22px;}
+
+/* Layout column */
+.col{
+  width:100%;max-width:680px;margin:0 auto;padding:0 28px;
+  position:relative;z-index:10;
+}
+.col-wide{
+  width:100%;max-width:820px;margin:0 auto;padding:0 28px;
+  position:relative;z-index:10;
+}
+
+/* Sections */
+section{position:relative;z-index:10;}
+section.chapter{padding:14vh 0 12vh;}
+
+/* HERO */
+#hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;z-index:10;text-align:center;
+  padding:0 24px;
+}
+.hero-stack{
+  display:flex;flex-direction:column;align-items:center;gap:28px;
+  margin-top:auto;margin-bottom:8vh;
+}
+.hero-title{
+  font-family:var(--serif);font-weight:500;font-size:34px;letter-spacing:0.005em;
+  line-height:1.25;color:var(--cream);
+  opacity:0;transform:translateY(8px);
+  animation:rise 1100ms var(--ease) 1500ms forwards;
+}
+.hero-title .you{display:block;font-size:28px;font-weight:400;color:var(--cream-90);margin-top:6px;font-style:italic;}
+.hero-sub{
+  font-family:var(--serif);font-weight:400;font-size:18px;line-height:1.7;
+  color:var(--cream-70);max-width:520px;
+  opacity:0;transform:translateY(8px);
+  animation:rise 1100ms var(--ease) 3500ms forwards;
+}
+.hero-sub .row{display:block;}
+.hero-begin{
+  font-family:var(--serif);font-style:italic;font-size:20px;
+  color:var(--cream);border-bottom:1px solid var(--cream-25);
+  padding-bottom:2px;
+  opacity:0;
+  animation:rise 1100ms var(--ease) 5200ms forwards;
+  transition:border-color 300ms var(--ease), color 300ms var(--ease);
+}
+.hero-begin:hover{border-color:var(--cream);}
+.hero-foot{
+  position:absolute;bottom:32px;left:0;right:0;text-align:center;
+  font-family:var(--sans);font-size:10px;letter-spacing:0.22em;
+  color:var(--cream-25);text-transform:uppercase;
+  opacity:0;animation:rise 800ms var(--ease) 6500ms forwards;
+}
+
+@keyframes rise{
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* Chapter heads */
+.chap-num{
+  font-family:var(--sans);font-size:11px;letter-spacing:0.32em;text-transform:uppercase;
+  color:var(--cream-40);margin-bottom:10px;
+}
+.chap-title{
+  font-family:var(--serif);font-weight:500;font-size:20px;letter-spacing:0.04em;
+  text-transform:uppercase;color:var(--cream-70);margin-bottom:48px;
+}
+.chap-rule{
+  width:32px;height:1px;background:var(--cream-25);margin-bottom:48px;
+}
+
+/* Universal subtle backdrop — applies per-paragraph on hover only. */
+.preamble p, .prompt,
+.entry, .echo, .quote, .line, .obj-prompt, .obj-q, .obj-a,
+.closing-line, .colophon, .foundations-list li, .foundations-note,
+.hero-sub{
+  position:relative;
+  padding:6px 10px;
+  margin-left:-10px; margin-right:-10px;
+  border-radius:2px;
+}
+.preamble p::before, .prompt::before,
+.entry::before, .echo::before, .quote::before, .line::before,
+.obj-prompt::before, .obj-q::before, .obj-a::before,
+.closing-line::before, .colophon::before, .foundations-list li::before,
+.foundations-note::before, .hero-sub::before{
+  content:"";position:absolute;inset:0;border-radius:2px;
+  background:rgba(10,10,10,0);
+  backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);
+  pointer-events:none; z-index:-1;
+  transition:background-color 700ms var(--ease), backdrop-filter 700ms var(--ease), -webkit-backdrop-filter 700ms var(--ease);
+}
+.preamble p:hover::before, .prompt:hover::before,
+.entry:hover::before, .echo:hover::before,
+.closing-line:hover::before, .colophon:hover::before, .foundations-list li:hover::before,
+.foundations-note:hover::before,
+.hero-sub:hover::before, .obj-q:hover::before, .obj-a:hover::before{
+  background-color:rgba(10,10,10,0.05);
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+}
+
+/* Preamble — large serif lines, staggered fade-in */
+.preamble{margin-bottom:56px;}
+.preamble p{
+  font-family:var(--serif);font-weight:400;font-size:34px;line-height:1.4;
+  color:var(--cream);margin-bottom:18px;letter-spacing:0;
+  opacity:0;transform:translateY(10px);
+  transition:opacity 900ms var(--ease), transform 900ms var(--ease);
+  text-wrap:pretty;
+}
+.preamble p.in{opacity:1;transform:translateY(0);}
+
+/* Prompt — italic */
+.prompt{
+  font-family:var(--serif);font-style:italic;font-size:22px;line-height:1.65;
+  color:var(--cream-90);margin-bottom:48px;
+  opacity:0;transform:translateY(10px);
+  transition:opacity 900ms var(--ease), transform 900ms var(--ease);
+  text-wrap:pretty;
+}
+.prompt.in{opacity:1;transform:translateY(0);}
+
+/* Form */
+.form{
+  opacity:0;transform:translateY(10px);
+  transition:opacity 900ms var(--ease), transform 900ms var(--ease);
+}
+.form.in{opacity:1;transform:translateY(0);}
+.form textarea{
+  width:calc(100% + 20px);background:transparent;border:0;
+  border-bottom:1px solid var(--cream-25);
+  color:var(--cream);font-family:var(--serif);font-size:20px;
+  line-height:1.6;padding:14px 10px;margin:0 -10px;resize:none;
+  caret-color:var(--cream);outline:none;
+  border-radius:2px;
+  transition:border-color 300ms var(--ease),
+             background-color 700ms var(--ease),
+             backdrop-filter 700ms var(--ease),
+             -webkit-backdrop-filter 700ms var(--ease);
+  font-feature-settings:"liga","kern";
+}
+.form textarea:hover, .form textarea:focus{
+  background-color:rgba(10,10,10,0.05);
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+}
+.form textarea:focus{border-bottom-color:var(--cream);}
+.form textarea::placeholder{color:var(--cream-40);font-style:italic;}
+.form-actions{
+  display:flex;align-items:baseline;justify-content:flex-end;
+  margin-top:18px;
+}
+.form-send{
+  font-family:var(--serif);font-style:italic;font-size:18px;
+  color:var(--cream);border-bottom:1px solid var(--cream-25);
+  padding-bottom:2px;letter-spacing:0;
+  transition:border-color 300ms var(--ease), color 300ms var(--ease), opacity 300ms var(--ease);
+}
+.form-send:disabled{opacity:0.35;cursor:default;}
+.form-send:not(:disabled):hover{border-bottom-color:var(--cream);}
+.form-error{
+  margin-top:12px;font-family:var(--serif);font-style:italic;font-size:15px;
+  color:var(--cream-55);
+}
+
+/* Post-submission moment */
+.post{margin:64px 0 16px;min-height:1px;}
+.post .quote, .post .line, .post .echoes .echo, .obj-prompt{
+  transition: background-color 700ms var(--ease), box-shadow 700ms var(--ease), color 500ms var(--ease);
+}
+.post .quote:hover::before, .post .line:hover::before,
+.post .echoes .echo:hover::before, .obj-prompt:hover::before{
+  background-color:rgba(10,10,10, var(--post-bg-alpha, 0.55));
+  backdrop-filter:blur(var(--post-blur, 6px));-webkit-backdrop-filter:blur(var(--post-blur, 6px));
+}
+.post .quote:hover, .post .line:hover, .post .echoes .echo:hover, .obj-prompt:hover{
+  color:var(--cream);
+}
+/* Subtle breathing animation when not hovered, calls attention without movement */
+.post .quote, .post .line{
+  animation: post-breathe 7s var(--ease) infinite;
+}
+@keyframes post-breathe{
+  0%, 100%{ text-shadow: 0 0 0 rgba(10,10,10,0); }
+  50%{ text-shadow: 0 0 18px rgba(10,10,10,0.6); }
+}
+.post .quote{
+  font-family:var(--serif);font-style:italic;font-size:26px;line-height:1.55;
+  color:var(--cream);text-wrap:pretty;
+}
+.post .attr{
+  display:block;margin-top:18px;font-style:normal;font-size:16px;
+  color:var(--cream-55);font-family:var(--serif);
+}
+.post .line{
+  font-family:var(--serif);font-size:22px;color:var(--cream-90);
+  font-style:italic;text-wrap:pretty;
+}
+.post .echoes{display:flex;flex-direction:column;gap:22px;}
+.post .echoes .echo{
+  font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.65;
+  color:var(--cream-70);
+}
+
+/* Objections expandable */
+.obj-prompt{
+  font-family:var(--serif);font-size:18px;line-height:1.65;
+  color:var(--cream-70);font-style:italic;
+}
+.obj-prompt .seehow{
+  border-bottom:1px solid var(--cream-40);font-style:normal;
+  margin-left:6px;
+}
+.obj-prompt .seehow:hover{border-bottom-color:var(--cream);}
+.obj-list{
+  margin-top:36px;display:none;
+  border-top:1px solid var(--cream-15);padding-top:36px;
+}
+.obj-list.open{display:block;animation:rise 700ms var(--ease) forwards;}
+.obj-item{margin-bottom:28px;}
+.obj-item .obj-q{
+  font-family:var(--serif);font-weight:500;font-size:18px;color:var(--cream);
+  margin-bottom:6px;
+}
+.obj-item .obj-q span{color:var(--cream-40);margin-right:8px;font-family:var(--sans);font-size:11px;letter-spacing:0.1em;}
+.obj-item .obj-a{
+  font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.65;
+  color:var(--cream-70);
+}
+
+/* Wall */
+.wall{
+  margin-top:80px;
+  opacity:0;transform:translateY(10px);
+  transition:opacity 900ms var(--ease), transform 900ms var(--ease);
+}
+.wall.in{opacity:1;transform:translateY(0);}
+.wall-label{
+  font-family:var(--sans);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--cream-40);margin-bottom:32px;
+}
+.wall-empty{
+  font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.65;
+  color:var(--cream-55);
+}
+.entries{display:flex;flex-direction:column;gap:26px;}
+.entry{
+  font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.7;
+  color:var(--cream-90);
+  opacity:0;transform:translateY(8px);
+  transition:opacity 900ms var(--ease), transform 900ms var(--ease), color 1200ms var(--ease);
+  text-wrap:pretty;
+}
+.entry.in{opacity:1;transform:translateY(0);}
+.entry.mine{color:var(--burgundy);}
+.entry.mine.settled{color:var(--cream);}
+.entry .truncated{cursor:pointer;}
+.entry .more{
+  font-style:normal;color:var(--cream-55);
+  border-bottom:1px solid var(--cream-25);
+}
+.entry .more:hover{color:var(--cream);}
+.show-more{
+  margin-top:36px;font-family:var(--serif);font-style:italic;font-size:17px;
+  color:var(--cream-70);border-bottom:1px solid var(--cream-25);
+  padding-bottom:2px;
+}
+.show-more:hover{color:var(--cream);}
+.show-more:disabled{opacity:0.4;cursor:default;}
+
+/* Silence gap */
+.silence-gap{
+  height:60px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--sans);font-size:10px;letter-spacing:0.32em;
+  color:var(--cream-15);text-transform:uppercase;
+}
+
+/* Closing */
+#closing{position:relative;z-index:10;}
+.closing-stage{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:0 24px;
+  position:sticky;top:0;
+}
+.closing-line{
+  max-width:780px;
+  font-family:var(--serif);font-style:italic;
+  font-size:30px;line-height:1.45;color:var(--cream);
+  opacity:0;transition:opacity 1500ms var(--ease);
+  text-wrap:pretty;
+}
+.closing-line.small{font-size:22px;color:var(--cream-90);}
+.closing-line .attr{display:block;margin-top:22px;font-style:normal;font-size:15px;color:var(--cream-55);}
+.closing-line.in{opacity:1;}
+
+/* Speech scroll (inside #closing-speeches) */
+#closing-speeches{
+  position:relative;padding:18vh 0 24vh;display:none;
+}
+#closing-speeches.shown{display:block;}
+.speech-list{display:flex;flex-direction:column;gap:32px;}
+.speech-list .entry{font-size:20px;color:var(--cream-90);font-style:italic;}
+.speech-list .entry.mine{color:var(--burgundy);font-weight:500;}
+.speech-foot{
+  margin-top:18vh;text-align:center;padding-bottom:8vh;
+  font-family:var(--serif);font-size:15px;color:var(--cream-40);
+  letter-spacing:0.02em;
+}
+
+/* Foundations */
+#foundations{padding:14vh 0 8vh;border-top:1px solid var(--cream-10);margin-top:18vh;}
+#foundations h2{
+  font-family:var(--sans);font-size:11px;letter-spacing:0.32em;text-transform:uppercase;
+  color:var(--cream-40);margin-bottom:36px;font-weight:500;
+}
+.foundations-list{display:flex;flex-direction:column;gap:24px;margin-bottom:48px;}
+.foundations-list li{
+  list-style:none;font-family:var(--serif);font-size:18px;line-height:1.6;color:var(--cream-90);
+}
+.foundations-list .src{font-style:italic;}
+.foundations-list .gloss{display:block;color:var(--cream-55);font-size:16px;margin-top:4px;}
+.foundations-note{
+  font-family:var(--serif);font-style:italic;font-size:18px;line-height:1.7;
+  color:var(--cream-70);max-width:620px;margin-bottom:40px;
+  text-wrap:pretty;
+}
+.foundations-note .turn{
+  display:inline-block;font-style:normal;color:var(--cream);
+  border-bottom:1px solid var(--cream-25);padding-bottom:1px;
+}
+.colophon{
+  font-family:var(--serif);font-size:15px;line-height:1.7;color:var(--cream-55);
+  max-width:560px;margin-bottom:32px;
+}
+.foot-link{
+  font-family:var(--sans);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--cream-40);border-bottom:1px solid var(--cream-15);padding-bottom:2px;
+}
+.foot-link:hover{color:var(--cream);}
+
+/* Mobile */
+@media (max-width:680px){
+  .brand{top:18px;left:20px;font-size:14px;}
+  .meta-link{top:18px;right:20px;}
+  .ticks{right:14px;gap:11px;}
+  .preamble p{font-size:24px;}
+  .prompt{font-size:18px;}
+  .hero-title{font-size:26px;}
+  .hero-title .you{font-size:21px;}
+  .hero-sub{font-size:16px;}
+  .form textarea{font-size:17px;}
+  .entry{font-size:17px;}
+  .post .quote{font-size:21px;}
+  section.chapter{padding:10vh 0 8vh;}
+  .closing-line{font-size:23px;}
+  .closing-line.small{font-size:18px;}
+  .foundations-note{font-size:16px;}
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms !important;transition-duration:0.01ms !important;}
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#hero">Skip to content</a>
+
+<div class="brand"><a href="#hero">By Lot.</a></div>
+<a class="meta-link" href="#foundations">Foundations</a>
+
+<div class="field-fallback" aria-hidden="true"></div>
+<div id="field-canvas" aria-hidden="true"></div>
+
+<nav class="ticks" id="ticks" aria-label="Chapter index"></nav>
+
+<main id="app">
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-stack">
+      <h1 class="hero-title">
+        By Lot.
+        <span class="you">You. Drawn from 84,479,000.</span>
+      </h1>
+      <p class="hero-sub">
+        <span class="row">Nine questions. Anonymous. No accounts, no metrics, no replies.</span>
+        <span class="row">Twenty minutes. Begin when you are ready.</span>
+      </p>
+      <a class="hero-begin" href="#believe" data-scroll>Begin &rarr;</a>
+    </div>
+    <div class="hero-foot">University of St. Gallen &middot; Spring 2026</div>
+  </section>
+
+  <!-- Chapters render here -->
+  <div id="chapters"></div>
+
+  <!-- Closing — Aristotle, silence, Van Reybrouck, constellation, scroll-of-speeches -->
+  <section id="closing" hidden>
+    <div class="closing-stage" id="closing-stage">
+      <div class="closing-line" id="closing-line-1">
+        It is considered democratic for offices to be filled by lot, and oligarchic for them to be filled by election.
+        <span class="attr">— Aristotle, Politics IV.9, fourth century BCE.</span>
+      </div>
+      <div class="closing-line small" id="closing-line-2" style="display:none;">
+        We must decolonise democracy. We must democratise democracy.
+        <span class="attr">— David Van Reybrouck, Against Elections, 2016.</span>
+      </div>
+    </div>
+    <div id="closing-speeches" class="col">
+      <div class="wall-label">The wall, gathered</div>
+      <div class="speech-list" id="speech-list"></div>
+      <div class="speech-foot">Send this to someone.</div>
+    </div>
+  </section>
+
+  <!-- Foundations -->
+  <section id="foundations" class="col-wide">
+    <h2>Foundations</h2>
+    <ul class="foundations-list">
+      <li><span class="src">Aristotle, Politics, Book IV, c. 350 BCE.</span> <span class="gloss">The first attested claim that election is oligarchic and lot is democratic.</span></li>
+      <li><span class="src">Jean-Jacques Rousseau, The Social Contract, 1762.</span> <span class="gloss">On the freedom of the English voter, briefly.</span></li>
+      <li><span class="src">Bernard Manin, Principles of Representative Government, 1995.</span> <span class="gloss">The hidden architecture: that representative democracy was deliberately designed against democracy.</span></li>
+      <li><span class="src">James Fishkin, When the People Speak, 2009.</span> <span class="gloss">Empirical case for deliberative polling: what citizens think when they are given the chance to think.</span></li>
+      <li><span class="src">David Van Reybrouck, Against Elections, 2013 / 2016.</span> <span class="gloss">The pragmatic argument for a bicameral lottery: keep elections, add the lot.</span></li>
+      <li><span class="src">Shoshana Zuboff, Surveillance Capitalism or Democracy?, Organization Theory 3(3), 2022.</span> <span class="gloss">The case that surveillance capitalism corrodes the epistemic conditions democracy depends on.</span></li>
+    </ul>
+    <p class="foundations-note">The specifics are German — the Bundestag, the figure of 84&nbsp;million — because reflection needs concrete ground. The diagnosis is not. Every electoral-representative democracy lives the same paradox: enthusiasm for the idea, mistrust of its practice. <span class="turn">Replace the chamber’s name with yours, and the questions hold.</span></p>
+    <p class="colophon">By Lot. is an academic submission for the seminar <em>Where to, Democracy?</em> at the University of St. Gallen, spring semester 2026. All submissions are anonymous and stored only as text. No tracking, no analytics, no third-party scripts.</p>
+    <a class="foot-link" href="https://github.com/vcgetter22/By-Lot" id="source-link" target="_blank" rel="noopener noreferrer">Source code on GitHub</a>
+  </section>
+
+</main>
+
+<script type="module" src="/src/main.js"></script>
+
+</body>
+</html>
