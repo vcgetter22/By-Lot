@@ -61,13 +61,16 @@ CHAPTERS.forEach((c, idx) => {
   sec.className = 'chapter';
   sec.id = c.slug;
   sec.dataset.idx = String(idx);
+  const wallLabelHtml = c.slug === 'believe'
+    ? '<div class="wall-label">The Wall — voices of others</div>'
+    : '';
   sec.innerHTML = `
     <div class="col">
       <div class="chap-num">Chapter ${c.n}</div>
       <h2 class="chap-title">${escapeHtml(c.title)}</h2>
       <div class="chap-rule"></div>
       <div class="preamble">
-        ${c.preamble.map((p) => `<p>${escapeHtml(p)}</p>`).join('')}
+        ${c.preamble.map(renderPreambleLine).join('')}
       </div>
       <div class="prompt">${escapeHtml(c.prompt)}</div>
       <form class="form" data-slug="${c.slug}" novalidate>
@@ -79,7 +82,7 @@ CHAPTERS.forEach((c, idx) => {
       </form>
       <div class="post" data-slug="${c.slug}"></div>
       <div class="wall" data-slug="${c.slug}">
-        <div class="wall-label">The wall</div>
+        ${wallLabelHtml}
         <div class="entries"></div>
         <button type="button" class="show-more" hidden>Show more</button>
       </div>
@@ -152,6 +155,17 @@ document.querySelectorAll('form.form').forEach((form) => {
     }
   });
 });
+
+function renderPreambleLine(line) {
+  if (typeof line === 'string') {
+    return `<p>${escapeHtml(line)}</p>`;
+  }
+  const classes = [];
+  if (line.silenced) classes.push('silenced');
+  if (line.stanzaBreak) classes.push('stanza-break');
+  const cls = classes.length ? ` class="${classes.join(' ')}"` : '';
+  return `<p${cls}>${escapeHtml(line.text)}</p>`;
+}
 
 function autosize(ta) {
   ta.style.height = 'auto';
@@ -399,17 +413,27 @@ async function triggerClosing(myId) {
 
   const line1 = document.getElementById('closing-line-1');
   const line2 = document.getElementById('closing-line-2');
+  const line3 = document.getElementById('closing-line-3');
   const stage = document.getElementById('closing-stage');
   const speeches = document.getElementById('closing-speeches');
 
+  // Aristotle (large)
   setTimeout(() => line1.classList.add('in'), 1400);
   setTimeout(() => line1.classList.remove('in'), 1400 + 5500);
   setTimeout(() => {
     line1.style.display = 'none';
     line2.style.display = 'block';
   }, 1400 + 5500 + 1500);
+  // Zuboff (medium)
   setTimeout(() => line2.classList.add('in'), 1400 + 5500 + 1700);
   setTimeout(() => line2.classList.remove('in'), 1400 + 5500 + 1700 + 5500);
+  setTimeout(() => {
+    line2.style.display = 'none';
+    line3.style.display = 'block';
+  }, 1400 + 5500 + 1700 + 5500 + 1500);
+  // Van Reybrouck (small)
+  setTimeout(() => line3.classList.add('in'), 1400 + 5500 + 1700 + 5500 + 1700);
+  setTimeout(() => line3.classList.remove('in'), 1400 + 5500 + 1700 + 5500 + 1700 + 5500);
 
   let speechRows = [];
   try {
@@ -418,7 +442,7 @@ async function triggerClosing(myId) {
     console.error('[by-lot] speech closing fetch failed', ex);
   }
 
-  const total = 1400 + 5500 + 1700 + 5500 + 2000;
+  const total = 1400 + 5500 + 1700 + 5500 + 1700 + 5500 + 2000;
   setTimeout(() => {
     if (window.byLotField && !window.byLotField.reduced) {
       window.byLotField.enterConstellation(speechRows.length);
@@ -428,7 +452,7 @@ async function triggerClosing(myId) {
     stage.style.position = 'relative';
     stage.style.minHeight = '0';
     stage.style.padding = '0';
-    line2.style.display = 'none';
+    line3.style.display = 'none';
     speeches.classList.add('shown');
     const list = document.getElementById('speech-list');
     list.innerHTML = '';

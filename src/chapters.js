@@ -33,7 +33,9 @@ export const CHAPTERS = [
     preamble: [
       "Most of your political beliefs are negotiated in silence.",
       "Between you and the people you are quietly afraid will judge you.",
-      "No one you know will read this."
+      "Between you and the systems that have learned to sort you.",
+      { text: "No one you know will read this.", stanzaBreak: true },
+      { text: "And no one — not us, not a tracker, not an algorithm — is keeping a record of who you are.", silenced: true }
     ],
     prompt: "Write something politically true for you that you have never said out loud. Anywhere. Not online, not at dinner, not to your closest person.",
     post: { kind: "silence" }
@@ -116,7 +118,7 @@ export const CHAPTERS = [
     preamble: [
       "Athens, 4th century BCE. A slab of stone with slots for names — the kleroterion — randomly assigning citizens to the assembly. Government by lot, for two hundred years.",
       "1848. The demand: the right to vote.",
-      "2026. The demand, perhaps: the right to be heard. Not agreed with. Heard."
+      "2026. The demand, perhaps: the right to be heard — by people, not by algorithms. Not agreed with. Heard."
     ],
     prompt: "The next person who arrives at this site is anonymous, like you. Same questions, same silence. They will read what you write here. Tell them what you want them to know — about democracy, about us, about what they are about to do. If you could leave only one sentence on this wall, leave that one.",
     post: { kind: "closing" }

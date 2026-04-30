@@ -170,6 +170,14 @@ section.chapter{padding:14vh 0 12vh;}
   animation:rise 1100ms var(--ease) 1500ms forwards;
 }
 .hero-title .you{display:block;font-size:28px;font-weight:400;color:var(--cream-90);margin-top:6px;font-style:italic;}
+.hero-gloss{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:17px;line-height:1.4;letter-spacing:0;
+  color:var(--cream-55);text-align:center;
+  margin-top:-20px;
+  opacity:0;transform:translateY(8px);
+  animation:rise 1100ms var(--ease) 2100ms forwards;
+}
 .hero-sub{
   font-family:var(--serif);font-weight:400;font-size:18px;line-height:1.7;
   color:var(--cream-70);max-width:520px;
@@ -250,6 +258,8 @@ section.chapter{padding:14vh 0 12vh;}
   text-wrap:pretty;
 }
 .preamble p.in{opacity:1;transform:translateY(0);}
+.preamble p.stanza-break{margin-top:42px;}
+.preamble p.silenced{font-style:italic;color:rgba(244,239,227,0.85);}
 
 /* Prompt — italic */
 .prompt{
@@ -429,6 +439,7 @@ section.chapter{padding:14vh 0 12vh;}
   opacity:0;transition:opacity 1500ms var(--ease);
   text-wrap:pretty;
 }
+.closing-line.mid{font-size:26px;color:var(--cream-90);}
 .closing-line.small{font-size:22px;color:var(--cream-90);}
 .closing-line .attr{display:block;margin-top:22px;font-style:normal;font-size:15px;color:var(--cream-55);}
 .closing-line.in{opacity:1;}
@@ -487,12 +498,14 @@ section.chapter{padding:14vh 0 12vh;}
   .prompt{font-size:18px;}
   .hero-title{font-size:26px;}
   .hero-title .you{font-size:21px;}
+  .hero-gloss{font-size:13px;margin-top:-18px;}
   .hero-sub{font-size:16px;}
   .form textarea{font-size:17px;}
   .entry{font-size:17px;}
   .post .quote{font-size:21px;}
   section.chapter{padding:10vh 0 8vh;}
   .closing-line{font-size:23px;}
+  .closing-line.mid{font-size:20px;}
   .closing-line.small{font-size:18px;}
   .foundations-note{font-size:16px;}
 }
@@ -522,8 +535,9 @@ section.chapter{padding:14vh 0 12vh;}
     <div class="hero-stack">
       <h1 class="hero-title">
         By Lot.
-        <span class="you">You. Drawn from 84,479,000.</span>
+        <span class="you">You. Drawn by lot from 84,479,000.</span>
       </h1>
+      <p class="hero-gloss">Imagine you were asked to govern.</p>
       <p class="hero-sub">
         <span class="row">Nine questions. Anonymous. No accounts, no metrics, no replies.</span>
         <span class="row">Twenty minutes. Begin when you are ready.</span>
@@ -543,7 +557,11 @@ section.chapter{padding:14vh 0 12vh;}
         It is considered democratic for offices to be filled by lot, and oligarchic for them to be filled by election.
         <span class="attr">— Aristotle, Politics IV.9, fourth century BCE.</span>
       </div>
-      <div class="closing-line small" id="closing-line-2" style="display:none;">
+      <div class="closing-line mid" id="closing-line-2" style="display:none;">
+        Surveillance capitalism unilaterally claims human experience as free raw material — for prediction products that we are no longer the subject of, but the object.
+        <span class="attr">— Shoshana Zuboff, 2022.</span>
+      </div>
+      <div class="closing-line small" id="closing-line-3" style="display:none;">
         We must decolonise democracy. We must democratise democracy.
         <span class="attr">— David Van Reybrouck, Against Elections, 2016.</span>
       </div>
